@@ -1,12 +1,9 @@
-// 상태 관리 객체 (실제 운영 시에는 Backend API와 연동)
-let messageList = [];
-let stats = {
-    total: 0,
-    ssPriority: 0,
-    error: 0
-};
+// 초기 데이터 로드 (브라우저 저장소에서 기존 데이터 가져오기)
+let messageList = JSON.parse(localStorage.getItem('amhs_messages')) || [];
 
-// 파일 처리 함수
+// 페이지 로드 시 UI 업데이트
+window.onload = updateUI;
+
 function processFiles() {
     const fileInput = document.getElementById('fileInput');
     const files = fileInput.files;
@@ -16,55 +13,54 @@ function processFiles() {
         return;
     }
 
-    // 파일 읽기 시뮬레이션 (AMHS 포맷에 맞춰 파싱 로직 확장 가능)
-    for (let file of files) {
+    Array.from(files).forEach(file => {
         const reader = new FileReader();
         reader.onload = function(e) {
-            // 여기에서 AMHS 메시지 포맷(Text/X.400 등)을 분석합니다.
-            // 현재는 가상의 데이터를 생성하는 로직으로 대체합니다.
+            const content = e.target.result;
+            
+            // AMHS 메시지 파싱 시뮬레이션 (정규식 등으로 발신처/우선순위 추출 가능)
+            const isSS = content.includes('SS') || Math.random() > 0.8; 
+            
             const newMessage = {
+                id: Date.now() + Math.random(),
                 time: new Date().toLocaleString(),
-                priority: Math.random() > 0.7 ? 'SS' : 'GG',
+                priority: isSS ? 'SS' : 'GG',
                 origin: 'RKSSYNYX',
                 recipient: 'RKSIYOYX',
                 status: 'Completed'
             };
 
-            addMessage(newMessage);
+            // 데이터 추가
+            messageList.unshift(newMessage);
+            
+            // 데이터 저장 (localStorage)
+            localStorage.setItem('amhs_messages', JSON.stringify(messageList));
+            
+            updateUI();
         };
         reader.readAsText(file);
-    }
-}
-
-// 메시지 추가 및 10개 유지 로직
-function addMessage(msg) {
-    // 1. 데이터 저장 (최신순으로 맨 앞에 추가)
-    messageList.unshift(msg);
-    
-    // 2. 통계 업데이트
-    stats.total++;
-    if (msg.priority === 'SS') stats.ssPriority++;
-    
-    // 3. UI 업데이트
-    updateUI();
+    });
 }
 
 function updateUI() {
-    // 통계 숫자 업데이트
-    document.getElementById('total-count').innerText = stats.total;
-    document.getElementById('priority-count').innerText = stats.ssPriority;
-
+    const totalCountEl = document.getElementById('total-count');
+    const priorityCountEl = document.getElementById('priority-count');
     const tbody = document.getElementById('message-table-body');
-    tbody.innerHTML = '';
 
-    // 최신 10개만 슬라이싱하여 화면에 표시
+    // 1. 통계 업데이트
+    const ssCount = messageList.filter(m => m.priority === 'SS').length;
+    totalCountEl.innerText = messageList.length;
+    priorityCountEl.innerText = ssCount;
+
+    // 2. 테이블 업데이트 (최근 10개만 표시)
+    tbody.innerHTML = '';
     const recentTen = messageList.slice(0, 10);
 
     recentTen.forEach(msg => {
         const row = `
             <tr>
                 <td>${msg.time}</td>
-                <td><span class="badge ${msg.priority}">${msg.priority}</span></td>
+                <td><span class="${msg.priority === 'SS' ? 'badge-ss' : ''}">${msg.priority}</span></td>
                 <td>${msg.origin}</td>
                 <td>${msg.recipient}</td>
                 <td><span style="color: green;">● ${msg.status}</span></td>
@@ -72,4 +68,13 @@ function updateUI() {
         `;
         tbody.innerHTML += row;
     });
+}
+
+// 데이터 초기화 (필요시 호출)
+function resetData() {
+    if(confirm("모든 데이터를 삭제하시겠습니까?")) {
+        messageList = [];
+        localStorage.removeItem('amhs_messages');
+        updateUI();
+    }
 }
