@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMHS Message Statistics Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>AMHS Admin</h2>
+        <nav>
+            <ul>
+                <li class="active">Dashboard</li>
+                <li>Statistics</li>
+                <li>Settings</li>
+            </ul>
+        </nav>
+    </div>
+
+    <main class="content">
+        <header>
+            <h1>AMHS 메세지 통계 대시보드</h1>
+        </header>
+
+        <!-- 통계 요약 카드 -->
+        <section class="stats-cards">
+            <div class="card">
+                <h3>오늘의 메시지</h3>
+                <p id="total-count">0</p>
+            </div>
+            <div class="card">
+                <h3>우선순위 (SS)</h3>
+                <p id="priority-count">0</p>
+            </div>
+            <div class="card">
+                <h3>오류 메시지</h3>
+                <p id="error-count">0</p>
+            </div>
+        </section>
+
+        <!-- 파일 업로드 섹션 -->
+        <section class="upload-section">
+            <div class="upload-box">
+                <h3>메시지 파일 업로드 (.txt / .json)</h3>
+                <input type="file" id="fileInput" accept=".txt,.json" multiple>
+                <button onclick="processFiles()">분석 시작</button>
+            </div>
+        </section>
+
+        <!-- 최근 메시지 리스트 (최대 10개) -->
+        <section class="recent-messages">
+            <h3>최근 수신 메시지 (최근 10개)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>수신시간</th>
+                        <th>우선순위</th>
+                        <th>발신처(Originator)</th>
+                        <th>수신처(Recipient)</th>
+                        <th>상태</th>
+                    </tr>
+                </thead>
+                <tbody id="message-table-body">
+                    <!-- JS에서 데이터 삽입 -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
