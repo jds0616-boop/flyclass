@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>KAC Student Platform</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <style>
+        :root { --header-bg: #0f172a; --bg-color: #0f172a; --accent-color: #3b82f6; --btn-yellow: #facc15; --btn-text: #1e293b; --card-bg: #ffffff; --text-color: #1e293b; --input-bg: #f8fafc; --safe-area-bottom: env(safe-area-inset-bottom); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Pretendard', sans-serif; }
+        body { margin: 0; background: var(--bg-color); color: var(--text-color); height: 100dvh; overflow: hidden; }
+        .landing-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--header-bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 40px 20px; text-align: center; }
+        .landing-course { font-size: 24px; font-weight: 800; margin-bottom: 10px; line-height: 1.3; }
+        .landing-room { font-size: 16px; opacity: 0.7; font-weight: 500; margin-bottom: 60px; padding: 5px 15px; border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; }
+        .btn-enter { background: var(--btn-yellow); color: var(--btn-text); width: 200px; height: 56px; border-radius: 30px; font-size: 18px; font-weight: 800; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s; }
+        .btn-enter:active { transform: scale(0.96); }
+        .landing-logo { position: absolute; bottom: 40px; width: 120px; z-index: 9999; }
+        .app-container { width: 100%; height: 100%; display: none; flex-direction: column; position: relative; background: var(--bg-color); max-width: 600px; margin: 0 auto; }
+        .header { height: 56px; background: var(--header-bg); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; flex-shrink: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .header-btn { width: 40px; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; color: white; }
+        .header-center { flex-grow: 1; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+        .header-title { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+        .header-sub { font-size: 11px; opacity: 0.8; margin-top: 2px; display: flex; gap: 6px; align-items: center; }
+        .live-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; display: inline-block; box-shadow: 0 0 5px #22c55e; }
+        .sort-bar { padding: 10px 15px; background: var(--bg-color); display: flex; gap: 10px; z-index: 80; flex-shrink: 0; }
+        .sort-chip { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.1); color: #94a3b8; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
+        .sort-chip.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .scroll-container { flex-grow: 1; overflow-y: auto; position: relative; padding: 0 15px 120px 15px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .scroll-container::-webkit-scrollbar { display: none; }
+        .q-card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-start; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; }
+        .q-card.my-q { border: 2px solid var(--accent-color); background: #f0f9ff; }
+        .q-avatar { width: 36px; height: 36px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; color: #64748b; }
+        .my-q .q-avatar { background: var(--accent-color); color: white; }
+        .q-content { flex-grow: 1; min-width: 0; }
+        .q-text { font-size: 15px; line-height: 1.5; color: var(--text-color); margin-bottom: 8px; word-break: break-word; font-weight: 500; white-space: pre-wrap; }
+        .q-meta { font-size: 11px; color: #94a3b8; display: flex; gap: 8px; align-items: center; }
+        .btn-mini { cursor: pointer; padding: 4px 8px; background: rgba(0,0,0,0.05); border-radius: 4px; }
+        .q-like-area { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 44px; flex-shrink: 0; gap: 4px; }
+        .like-btn { width: 44px; height: 44px; border-radius: 12px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 18px; cursor: pointer; transition: 0.2s; }
+        .like-btn.active { background: #fee2e2; color: #ef4444; transform: scale(1.05); }
+        .like-count { font-size: 12px; font-weight: 700; color: #64748b; }
+        .like-btn.active + .like-count { color: #ef4444; }
+        
+        .input-dock { position: absolute; bottom: 0; left: 0; width: 100%; background: var(--input-bg); border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 10px 15px calc(10px + var(--safe-area-bottom)) 15px; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); z-index: 200; display: flex; flex-direction: column; gap: 4px; height: auto; min-height: 80px; }
+        .input-box { background: white; border-radius: 20px; padding: 10px 10px 10px 15px; display: flex; align-items: flex-end; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; min-height: 48px; height: auto; }
+        .real-input { flex-grow: 1; border: none; background: transparent; font-size: 16px; line-height: 1.4; color: var(--text-color); outline: none; resize: none; height: 24px; max-height: 120px; padding: 0; margin-bottom: 2px; overflow-y: hidden; font-family: 'Pretendard', sans-serif; }
+        .real-input:disabled { background: transparent; color: #94a3b8; opacity: 1; }
+        .send-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-color); color: white; border: none; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer; flex-shrink: 0; transition: 0.2s; margin-left: 8px; margin-bottom: 1px; }
+        .send-btn:active { transform: scale(0.9); }
+        .send-btn.editing { background: #10b981; }
+        .input-info-row { display: flex; justify-content: space-between; align-items: center; padding: 0 5px; font-size: 11px; font-weight: 600; }
+        .char-counter { color: #94a3b8; } .char-counter.limit { color: #ef4444; font-weight: 800; }
+        .cooldown-text { color: #ef4444; font-weight: 800; }
+        
+        .quiz-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(5px); z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .quiz-box { width: 100%; background: white; border-radius: 24px; padding: 30px 20px; text-align: center; }
+        .quiz-opt-btn { width: 100%; height: 70px; margin-bottom: 10px; border-radius: 12px; font-size: 20px; font-weight: 800; border: 2px solid #e2e8f0; background: #f8fafc; color: #333; transition: 0.2s; }
+        .quiz-opt-btn.selected { background: var(--accent-color); color: white; border-color: var(--accent-color); transform: scale(1.02); }
+        .quiz-opt-btn.locked { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
+        #quizResultBox { animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .quiz-king-stamp { position: absolute; top: 5px; right: 5px; width: 95px; height: 95px; border: 4px double #facc15; border-radius: 50%; color: #facc15; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; transform: rotate(15deg); background: rgba(250, 204, 21, 0.1); z-index: 10; animation: stampIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes stampIn { from { transform: scale(3) rotate(45deg); opacity: 0; } to { transform: scale(1) rotate(15deg); opacity: 1; } }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 6000; display: none; align-items: center; justify-content: center; }
+        .menu-box { background: white; width: 80%; max-width: 300px; border-radius: 16px; padding: 20px; text-align: center; }
+        .menu-item { padding: 15px; border-bottom: 1px solid #eee; font-weight: 600; cursor: pointer; color: #333; }
+    </style>
+</head>
+<body>
+    <div id="landingPage" class="landing-page">
+        <div class="landing-course" id="landingTitle">Loading...</div>
+        <div class="landing-room" id="landingBadge">Room ...</div>
+        <button class="btn-enter" onclick="enterApp()">입장하기 <i class="fa-solid fa-arrow-right-to-bracket"></i></button>
+        <img src="logo.png" alt="KAC" class="landing-logo">
+    </div>
+    <div class="app-container" id="mainApp">
+        <div class="header">
+            <!-- [수정] 나가기 버튼 기능 변경 (완전 퇴장) -->
+            <div class="header-btn" onclick="exitApp()"><i class="fa-solid fa-chevron-left"></i></div>
+            <div class="header-center"><div class="header-title" id="roomTitle">Course Name</div><div class="header-sub"><span class="live-dot"></span><span id="realUserCount">0명 접속</span> · <span id="roomBadge">Room A</span></div></div>
+            <div class="header-btn" onclick="openMenu()"><i class="fa-solid fa-bars"></i></div>
+        </div>
+        <div class="sort-bar">
+            <div class="sort-chip active" id="sortNew" onclick="setSort('new')">🕒 최신순</div>
+            <div class="sort-chip" id="sortLike" onclick="setSort('like')">👍 공감순</div>
+        </div>
+        <div class="scroll-container" id="scrollContainer"><div id="qList" class="q-list"></div></div>
+        <div class="input-dock" id="inputDock">
+            <div class="input-box">
+                <textarea id="qInput" class="real-input" rows="1" placeholder="강의장 공개, 예의있는 질문" maxlength="100" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+                <button id="submitBtn" class="send-btn" onclick="submitQ()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+            <div class="input-info-row"><span id="coolTimer" class="cooldown-text"></span><span id="charCount" class="char-counter">0 / 100</span></div>
+        </div>
+    </div>
+    <div id="quizOverlay" class="quiz-overlay">
+        <div id="quizActiveBox" class="quiz-box">
+            <div style="margin-bottom:20px; font-weight:900; font-size:24px; color:#3b82f6;">LIVE QUIZ</div>
+<!-- 학생용 타이머 디자인 추가 -->
+<div id="studentQuizTimerBox" style="display:none; justify-content:center; align-items:center; gap:10px; margin-bottom:15px;">
+    <i class="fa-regular fa-clock" style="color:#64748b; font-size:20px;"></i>
+    <div id="studentTimer" style="font-family: monospace; font-size:30px; font-weight:900; color:#1e293b;">00:08</div>
+</div>
+            <div id="quizStatusMsg" style="margin-bottom:20px; font-size:16px; font-weight:bold; color:#1e293b;">강사님이 퀴즈를 시작하기를 기다리고 있습니다...</div>
+            <div id="btnGroupMultiple" style="display:none; flex-direction:column; gap:5px;">
+                <button class="quiz-opt-btn" onclick="sendAns(1)">1번</button><button class="quiz-opt-btn" onclick="sendAns(2)">2번</button><button class="quiz-opt-btn" onclick="sendAns(3)">3번</button><button class="quiz-opt-btn" onclick="sendAns(4)">4번</button>
+            </div>
+            <div id="btnGroupOX" style="display:none; gap:15px;">
+                <button class="quiz-opt-btn ox-btn" onclick="sendAns(1)" style="flex:1; height:120px; font-size:40px;">O</button><button class="quiz-opt-btn ox-btn" onclick="sendAns(2)" style="flex:1; height:120px; font-size:40px;">X</button>
+            </div>
+            <div id="quizFeedback" style="margin-top:15px; font-weight:800; color:#ef4444; min-height:20px;"></div>
+        </div>
+        <div id="quizResultBox" class="quiz-box" style="display:none; background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%); position:relative; overflow:hidden;">
+            <div id="quizKingStamp" style="display:none;" class="quiz-king-stamp"><span style="font-size:30px;">👑</span><span>퀴즈왕</span></div>
+            <div style="font-size:50px; margin-bottom:10px;">🏆</div>
+            <h2 style="margin:0; font-weight:900; color:#0f172a;">QUIZ RESULT</h2>
+            <div style="margin:25px 0;"><div style="font-size:14px; color:#64748b; font-weight:bold;">당신의 최종 점수</div><div id="myFinalScore" style="font-size:48px; font-weight:900; color:#3b82f6;">0점</div></div>
+            <div style="background:#3b82f6; color:white; padding:15px; border-radius:12px; font-weight:800;">현재 <span id="myFinalRank">0</span>등 (전체 참여자 중)</div>
+            <button class="btn-enter" onclick="closeResultOverlay()" style="margin:20px auto 0 auto; width:100%;">확인 및 닫기</button>
+        </div>
+    </div>
+    <div id="menuModal" class="menu-overlay" onclick="if(event.target==this)this.style.display='none'">
+        <div class="menu-box"><h3>강의실 이동</h3><div id="roomList" style="max-height:300px; overflow-y:auto;"></div><button onclick="document.getElementById('menuModal').style.display='none'" style="margin-top:15px; padding:10px 20px; border:none; border-radius:8px; background:#e2e8f0;">닫기</button></div>
+    </div>
+    <script src="config.js"></script>
+    <script>
+        let dbRef = {}; let currentRoom = null; let myQs = {}; let myLikes = {}; let lastPostTime = 0; let editingKey = null; let currentSort = 'new'; let currentQuizId = null; let canAnswer = false; let myLastChoice = null; let hasClosedSummary = false; let rankingListener = null; let studentTimerInterval = null;
+        
+        (async function init() {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code'); const directRoom = params.get('room');
+            if (code) currentRoom = await resolveRoomFromCode(code); else if (directRoom) currentRoom = directRoom;
+            
+            // [수정] 방 정보가 없으면 '방 선택' UI 보여주기 (오류 대신)
+            if (!currentRoom) { 
+                document.getElementById('roomBadge').innerText = "Select Room";
+                document.getElementById('landingBadge').innerText = "강의실을 선택해주세요";
+                document.getElementById('landingTitle').innerText = "KAC Student Platform";
+                
+                const btn = document.querySelector('.btn-enter');
+                btn.innerHTML = '강의실 목록 보기 <i class="fa-solid fa-list"></i>';
+                btn.onclick = function() {
+                    document.getElementById('landingPage').style.display = 'none'; // 일단 랜딩 숨기고
+                    openMenu(); // 메뉴 열기
+                };
+                return;
+            }
+
+            document.getElementById('roomBadge').innerText = `Room ${currentRoom}`; document.getElementById('landingBadge').innerText = `ROOM ${currentRoom}`;
+            myLikes = JSON.parse(localStorage.getItem(`likes_${currentRoom}`) || '{}'); myQs = JSON.parse(localStorage.getItem(`myqs_${currentRoom}`) || '{}'); 
+            lastPostTime = parseInt(localStorage.getItem(`lastTime_${currentRoom}`) || '0');
+            const db = firebase.database(); const rPath = `courses/${currentRoom}`;
+            dbRef = { qa: db.ref(`${rPath}/questions`), quiz: db.ref(`${rPath}/activeQuiz`), ans: db.ref(`${rPath}/quizAnswers`), settings: db.ref(`${rPath}/settings`), status: db.ref(`${rPath}/status`), connections: db.ref(`${rPath}/connections`) };
+            setupListeners(); checkCooldown();
+
+            dbRef.status.once('value', s => {
+                const st = s.val() || {};
+                if(st.quizStep !== 'summary') {
+                    document.getElementById('quizOverlay').style.display = 'none';
+                    document.getElementById('quizResultBox').style.display = 'none';
+                }
+            });
+        })();
+
+        function enterApp() {
+            const doc = document.documentElement;
+            if (doc.requestFullscreen) doc.requestFullscreen().catch(e=>{}); else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen().catch(e=>{});
+            document.getElementById('landingPage').style.display = 'none'; document.getElementById('mainApp').style.display = 'flex'; startPresence();
+        }
+        
+        // [수정] 완전히 나가기 (주소 초기화)
+function exitApp() {
+    if (confirm("현재 강의실에서 나가시겠습니까?")) {
+        const ua = navigator.userAgent.toLowerCase();
+        
+        // 1. 카카오톡 인앱 브라우저 강제 종료 (성공 시 여기서 끝남)
+        if (ua.indexOf('kakaotalk') !== -1) {
+            location.href = 'kakaotalk://inappbrowser/close';
+            return;
+        }
+
+        // 2. 네이버 앱 인앱 브라우저 강제 종료 (성공 시 여기서 끝남)
+        if (ua.indexOf('naver') !== -1) {
+            location.href = 'naversearchapp://inappbrowser/close';
+            return;
+        }
+
+        // 3. 그 외 (아이폰 카메라, 크롬, 사파리 등)
+        // [중요] 절대 window.location.href 로직을 넣지 마세요! (입장창으로 가는 원인)
+        
+        // 브라우저가 창을 닫는 것을 거부할 때를 대비해 화면을 '퇴장 안내'로 덮어버립니다.
+        document.documentElement.innerHTML = `
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>퇴장 완료</title>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                <style>
+                    body { background: #0f172a; color: white; margin: 0; padding: 0; font-family: sans-serif; overflow: hidden; }
+                    .exit-box { height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+                    .icon { font-size: 80px; color: #3b82f6; margin-bottom: 20px; }
+                    h2 { font-size: 24px; margin: 0; }
+                    p { font-size: 16px; opacity: 0.7; margin-top: 15px; line-height: 1.5; }
+                    .btn-close { margin-top: 30px; padding: 12px 40px; background: #334155; color: white; border: none; border-radius: 30px; font-weight: bold; }
+                </style>
+            </head>
+            <body>
+                <div class="exit-box">
+                    <div class="icon"><i class="fa-solid fa-right-from-bracket"></i></div>
+                    <h2>퇴장 완료</h2>
+                    <p>정상적으로 퇴장되었습니다.<br>이 브라우저 창(탭)을 닫아주세요.</p>
+                    <button class="btn-close" onclick="window.close()">창 닫기 시도</button>
+                </div>
+            </body>
+        `;
+
+        // 히스토리를 꼬아버려 뒤로가기를 해도 입장창으로 못 돌아가게 함
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() { window.history.go(1); };
+
+        // 마지막으로 창 닫기 시도
+        setTimeout(() => { window.close(); }, 300);
+    }
+}
+
+        function startPresence() {
+            const connectedRef = firebase.database().ref(".info/connected");
+            connectedRef.on("value", (snap) => { if (snap.val() === true) { const con = dbRef.connections.push(); con.onDisconnect().remove(); con.set(true); } });
+            dbRef.connections.on("value", (snap) => { const count = snap.numChildren(); document.getElementById('realUserCount').innerText = `${count}명 접속`; });
+        }
+        function setupListeners() {
+            dbRef.settings.on('value', s => { const val = s.val() || {}; const title = val.courseName || `Course ${currentRoom}`; document.getElementById('roomTitle').innerText = title; document.getElementById('landingTitle').innerText = title; });
+            dbRef.qa.on('value', snap => renderList(snap.val() || {}));
+dbRef.status.on('value', snap => {
+    const st = snap.val() || {};
+    // 모드가 확실히 'qa'일 때만 퀴즈를 강제 종료함
+    // quizStep === 'none'일 때 종료하는 로직을 제거하여 화면 깜빡임 방지
+    if (st.mode === 'qa') { 
+        forceCloseQuiz(); 
+        return; 
+    }
+    
+    // 리포트 요약 화면(summary) 처리
+    if (st.quizStep === 'summary') { 
+        if(!hasClosedSummary) showFinalRanking(); 
+    }
+});
+
+dbRef.quiz.on('value', s => {
+    const q = s.val(); if(!q) return;
+    
+    // 상태가 바뀔 때마다 타이머는 일단 정지
+    if(studentTimerInterval) clearInterval(studentTimerInterval);
+    const sTimerBox = document.getElementById('studentQuizTimerBox');
+    const sTimerText = document.getElementById('studentTimer');
+    if(sTimerBox) sTimerBox.style.display = 'none';
+
+    dbRef.status.once('value', statusSnap => {
+        const st = statusSnap.val() || {};
+        
+        // [핵심 1] 'ready' 즉, 완전히 새로운 문제가 나올 때만 선택 기록을 지웁니다.
+        // 강사가 일시정지 후 다시 시작하는 것은 ready가 아니므로 기록이 유지됩니다.
+        if (q.status === 'ready') {
+            myLastChoiceIdx = null; 
+            myLastChoice = null;
+        }
+
+        if (st.quizStep === 'summary' && !hasClosedSummary) return; 
+        if (st.mode !== 'quiz') { forceCloseQuiz(); return; }
+
+        document.getElementById('quizOverlay').style.display = 'flex';
+        document.getElementById('quizActiveBox').style.display = 'block';
+        document.getElementById('quizResultBox').style.display = 'none';
+        const multArea = document.getElementById('btnGroupMultiple');
+        const oxArea = document.getElementById('btnGroupOX');
+        const msgBox = document.getElementById('quizStatusMsg');
+        const feedBox = document.getElementById('quizFeedback');
+
+        // [2] 일시정지 상태 (기존 선택 유지 및 클릭 차단)
+        if(q.status === 'pause') {
+            canAnswer = false; 
+            msgBox.innerText = "설명을 위해 잠시 멈췄습니다.";
+            if(sTimerBox && sTimerText && q.remainingTime !== undefined) {
+                sTimerBox.style.display = 'flex';
+                sTimerText.innerText = `00:${q.remainingTime < 10 ? '0' + q.remainingTime : q.remainingTime}`;
+                sTimerText.style.color = "#f59e0b";
+            }
+            // 기존 버튼들에 'locked'를 걸고 내가 눌렀던 버튼에 'selected' 유지
+            document.querySelectorAll('.quiz-opt-btn').forEach((btn, idx) => {
+                btn.classList.add('locked');
+                if((idx + 1) === myLastChoiceIdx) btn.classList.add('selected');
+            });
+            return; 
+        }
+
+        // [3] 결과 발표 상태
+        if (q.status === 'result') { 
+            multArea.style.display = 'none'; oxArea.style.display = 'none';
+            const correctAns = (q.id === 'TEST') ? 2 : q.correct;
+            if (q.isSurvey) {
+                msgBox.innerText = "📋 설문 결과 요약";
+                feedBox.innerHTML = `<span style="color:#3b82f6; font-size:18px;">${q.surveyResult || "집계가 완료되었습니다."}</span>`;
+            } else {
+                if (myLastChoiceIdx === correctAns) {
+                     msgBox.innerText = "🎉 정답입니다!"; msgBox.style.color = "#10b981";
+                     feedBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> 훌륭합니다!`;
+                } else {
+                     msgBox.innerText = "앗, 틀렸습니다..."; msgBox.style.color = "#ef4444";
+                     const ansText = q.isOX ? (correctAns===1?'O':'X') : `${correctAns}번`;
+                     feedBox.innerHTML = `정답은 <b style="color:#1e293b; font-size:18px;">[ ${ansText} ]</b> 입니다.`;
+                }
+            }
+            return; 
+        }
+
+        // [4] 대기 상태
+        if(q.status === 'ready') {
+            canAnswer = false;
+            msgBox.innerText = "강사님이 퀴즈를 시작하기를 기다리고 있습니다...";
+            msgBox.style.color = "#1e293b";
+            multArea.style.display = 'none'; oxArea.style.display = 'none';
+            feedBox.innerText = "";
+            currentQuizId = q.id;
+        } 
+        // [5] 퀴즈 진행 상태 (다시 시작했을 때 여기를 탑니다)
+        else if(q.status === 'open') {
+            canAnswer = true;
+            msgBox.innerText = "정답을 선택하세요!";
+            msgBox.style.color = "#1e293b";
+            
+            if(q.endTime && sTimerBox && sTimerText) {
+                sTimerBox.style.display = 'flex';
+                studentTimerInterval = setInterval(() => {
+                    const remain = Math.ceil((q.endTime - Date.now()) / 1000);
+                    const display = remain < 0 ? 0 : remain;
+                    sTimerText.innerText = `00:${display < 10 ? '0' + display : display}`;
+                    sTimerText.style.color = (remain <= 5) ? "#ef4444" : "#1e293b";
+                    if(remain <= 0) clearInterval(studentTimerInterval);
+                }, 200);
+            }
+
+            if(q.isOX) {
+                multArea.style.display = 'none'; oxArea.style.display = 'flex';
+                document.querySelectorAll('.ox-btn').forEach((btn, i) => {
+                    btn.classList.remove('locked', 'selected');
+                    // [핵심 2] OX 버튼의 경우 상태를 다시 체크해서 selected 부여
+                    if((i + 1) === myLastChoiceIdx) btn.classList.add('selected');
+                });
+            } else {
+                oxArea.style.display = 'none'; multArea.style.display = 'flex';
+                multArea.innerHTML = ""; 
+                q.options.forEach((optText, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'quiz-opt-btn';
+                    btn.innerText = `${i + 1}. ${optText}`; 
+                    btn.onclick = () => sendAns(i + 1);
+                    // [핵심 3] 다시 그릴 때 내가 이전에 눌렀던 번호라면 selected 클래스 강제 주입
+                    if((i + 1) === myLastChoiceIdx) btn.classList.add('selected');
+                    multArea.appendChild(btn);
+                });
+            }
+        }
+        else if(q.status === 'close') {
+            canAnswer = false;
+            document.querySelectorAll('.quiz-opt-btn').forEach((btn, idx) => {
+                btn.classList.add('locked');
+                if((idx + 1) === myLastChoiceIdx) btn.classList.add('selected');
+            });
+            if(myLastChoice) {
+                msgBox.innerText = "제출이 마감되었습니다.";
+                feedBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${myLastChoice}로 최종 제출되었습니다.`;
+            } else {
+                msgBox.innerText = "미제출 상태로 마감되었습니다.";
+            }
+        }
+    });
+});
+
+
+
+            const qInputEl = document.getElementById('qInput');
+            qInputEl.addEventListener('input', function() {
+                const len = this.value.length; document.getElementById('charCount').innerText = `${len} / 100`;
+                if (len >= 90) document.getElementById('charCount').classList.add('limit'); else document.getElementById('charCount').classList.remove('limit');
+                this.style.height = '1px'; this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
+        function setSort(type) { currentSort = type; document.getElementById('sortNew').classList.toggle('active', type === 'new'); document.getElementById('sortLike').classList.toggle('active', type === 'like'); dbRef.qa.once('value', s => renderList(s.val()||{})); }
+        function renderList(data) {
+            const list = document.getElementById('qList'); list.innerHTML = ""; let items = Object.keys(data).map(k => ({id:k, ...data[k]}));
+            if(currentSort === 'like') items.sort((a,b) => (b.likes||0) - (a.likes||0) || b.timestamp - a.timestamp); else items.sort((a,b) => b.timestamp - a.timestamp);
+            items.forEach(item => {
+                if(item.status === 'delete') return;
+                const isMine = myQs[item.id] ? 'my-q' : ''; const likedClass = myLikes[item.id] ? 'active' : '';
+                let metaHtml = `<div class="q-meta"><span>${formatTime(item.timestamp)}</span>`;
+                if(isMine && (Date.now() - myQs[item.id] < 300000)) metaHtml += `<span class="btn-mini" onclick="editQ('${item.id}')">수정</span><span class="btn-mini" onclick="deleteQ('${item.id}')" style="color:#ef4444">삭제</span>`;
+                metaHtml += `</div>`;
+                list.innerHTML += `<div class="q-card ${isMine}"><div class="q-avatar"><i class="fa-solid fa-user"></i></div><div class="q-content"><div class="q-text">${escapeHtml(item.text)}</div>${metaHtml}</div><div class="q-like-area"><div class="like-btn ${likedClass}" onclick="toggleLike('${item.id}')"><i class="fa-solid fa-thumbs-up"></i></div><span class="like-count">${item.likes||0}</span></div></div>`;
+            });
+        }
+        function submitQ() {
+            const txt = document.getElementById('qInput').value.trim(); if(!txt) return;
+            if(editingKey) { dbRef.qa.child(editingKey).update({ text: txt }).then(() => { alert("수정 완료"); resetInput(); }); return; }
+            const now = Date.now();
+            if(now - lastPostTime < 120000) { alert("잠시 후 질문해주세요."); return; }
+            const ref = dbRef.qa.push(); ref.set({ text: txt, likes: 0, timestamp: firebase.database.ServerValue.TIMESTAMP });
+            myQs[ref.key] = now; localStorage.setItem(`myqs_${currentRoom}`, JSON.stringify(myQs)); lastPostTime = now; localStorage.setItem(`lastTime_${currentRoom}`, now);
+            resetInput(); checkCooldown();
+        }
+        function toggleLike(key) { if(myLikes[key]) { dbRef.qa.child(key).transaction(p => { if(p) p.likes = (p.likes||0)-1; return p; }); delete myLikes[key]; } else { dbRef.qa.child(key).transaction(p => { if(p) p.likes = (p.likes||0)+1; return p; }); myLikes[key] = true; } localStorage.setItem(`likes_${currentRoom}`, JSON.stringify(myLikes)); }
+        function editQ(key) {
+            dbRef.qa.child(key).once('value', s => {
+                const el = document.getElementById('qInput'); el.value = s.val().text;
+                el.style.height = '1px'; el.style.height = (el.scrollHeight) + 'px';
+                document.getElementById('charCount').innerText = `${el.value.length} / 100`;
+                document.getElementById('submitBtn').classList.add('editing'); document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-check"></i>';
+                editingKey = key; el.focus(); checkCooldown(); 
+            });
+        }
+        function deleteQ(key) { if(confirm("삭제하시겠습니까?")) dbRef.qa.child(key).remove(); }
+        function resetInput() { const el = document.getElementById('qInput'); el.value = ""; el.style.height = '24px'; el.focus(); document.getElementById('charCount').innerText = "0 / 100"; document.getElementById('charCount').classList.remove('limit'); document.getElementById('submitBtn').classList.remove('editing'); document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-paper-plane"></i>'; editingKey = null; checkCooldown(); }
+        function checkCooldown() {
+            const btn = document.getElementById('submitBtn'); const input = document.getElementById('qInput');
+            if(editingKey) { document.getElementById('coolTimer').innerText = ""; btn.disabled = false; btn.style.opacity = 1; input.disabled = false; input.placeholder = "내용을 수정하세요."; return; }
+            const diff = Date.now() - lastPostTime; const timerEl = document.getElementById('coolTimer');
+            if(diff < 120000) {
+                const remain = Math.ceil((120000 - diff) / 1000); const mm = Math.floor(remain / 60); const ss = remain % 60;
+                timerEl.innerText = `⏳ 질문 제한: ${mm}:${ss.toString().padStart(2, '0')} 남음`;
+                btn.disabled = true; btn.style.opacity = 0.5; input.disabled = true; input.placeholder = "도배 방지를 위해 잠시 대기해주세요.";
+                setTimeout(checkCooldown, 1000);
+            } else { timerEl.innerText = ""; btn.disabled = false; btn.style.opacity = 1; input.disabled = false; input.placeholder = "강의장 공개, 예의있는 질문"; }
+        }
+        function formatTime(ts) { const d = new Date(ts); return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
+        function escapeHtml(t) { return t ? t.replace(/&/g,"&amp;").replace(/</g,"&lt;") : ""; }
+        async function sendAns(c) {
+            if(!canAnswer) return;
+            const qSnap = await dbRef.quiz.once('value'); const qData = qSnap.val() || {}; myLastChoiceIdx = c; const choiceLabel = (qData.type === 'OX') ? (c === 1 ? 'O' : 'X') : `${c}번`; myLastChoice = choiceLabel; 
+            document.querySelectorAll('.quiz-opt-btn').forEach(b => b.classList.remove('selected')); event.target.classList.add('selected');
+            document.getElementById('quizFeedback').innerHTML = `<i class="fa-solid fa-hand-pointer"></i> ${choiceLabel} 선택 중...`;
+            let t = localStorage.getItem('uToken'); if(!t) { t=Math.random().toString(36).substr(2); localStorage.setItem('uToken',t); }
+            dbRef.ans.child(currentQuizId).child(t).set({choice:c});
+        }
+        function showFinalRanking() {
+            const myToken = localStorage.getItem('uToken'); if(!myToken) return; if(rankingListener) return;
+            document.getElementById('quizOverlay').style.display = 'flex'; document.getElementById('quizActiveBox').style.display = 'block'; document.getElementById('quizResultBox').style.display = 'none';
+            document.getElementById('quizStatusMsg').innerText = "📊 점수를 집계 중입니다. 잠시만 기다려주세요..."; document.getElementById('btnGroupMultiple').style.display = 'none'; document.getElementById('btnGroupOX').style.display = 'none'; document.getElementById('quizFeedback').innerText = "";
+            const resultRef = firebase.database().ref(`courses/${currentRoom}/quizFinalResults/${myToken}`);
+            rankingListener = resultRef.on('value', snap => {
+                const myResult = snap.val();
+                if(myResult) {
+                    document.getElementById('quizActiveBox').style.display = 'none'; document.getElementById('quizResultBox').style.display = 'block';
+                    document.getElementById('myFinalScore').innerText = `${myResult.score}점`; document.getElementById('myFinalRank').innerText = myResult.rank;
+                    if(myResult.rank === 1) document.getElementById('quizKingStamp').style.display = 'flex'; else document.getElementById('quizKingStamp').style.display = 'none';
+                }
+            });
+        }
+        function forceCloseQuiz() {
+            hasClosedSummary = false; canAnswer = false;
+            if (rankingListener) { const myToken = localStorage.getItem('uToken'); firebase.database().ref(`courses/${currentRoom}/quizFinalResults/${myToken}`).off(); rankingListener = null; }
+            document.getElementById('quizResultBox').style.display = 'none'; document.getElementById('quizActiveBox').style.display = 'block'; document.getElementById('quizOverlay').style.display = 'none'; document.getElementById('quizKingStamp').style.display = 'none';
+        }
+        function closeResultOverlay() { hasClosedSummary = true; document.getElementById('quizOverlay').style.display = 'none'; }
+        function openMenu() {
+            const box = document.getElementById('roomList'); box.innerHTML = "";
+            for(let i=65; i<=90; i++) { let c = String.fromCharCode(i); box.innerHTML += `<div class="menu-item" onclick="changeRoom('${c}')">Room ${c}</div>`; }
+            document.getElementById('menuModal').style.display = 'flex';
+        }
+        function changeRoom(r) {
+            const pw = prompt(`Room ${r} 입장 비밀번호를 입력하세요:`); if (!pw) return;
+            firebase.database().ref(`courses/${r}/settings/password`).once('value', snap => {
+                const dbPw = snap.val();
+                if (!dbPw) { alert("⚠️ 해당 강의실은 아직 개설되지 않았거나,\n비밀번호가 설정되지 않았습니다."); return; }
+                if (String(pw) === String(dbPw) || btoa(pw) === String(dbPw)) { window.location.href = `?room=${r}`; } else { alert("⛔ 비밀번호가 올바르지 않습니다."); }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,608 @@
+/* --- admin.css (Final Version) --- */
+
+:root {
+    --header-bg: #0f172a;
+    --accent-color: #3b82f6;
+    --bg-color: #f1f5f9;
+    --card-bg: #ffffff;
+    --text-color: #1e293b;
+    --sidebar-width: 300px;
+    --sidebar-bg: #1e293b;
+}
+
+body.night-mode {
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --text-color: #e2e8f0;
+}
+
+* { box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
+body { margin: 0; background: var(--bg-color); color: var(--text-color); height: 100vh; overflow: hidden; display: flex; }
+
+/* Login & Common */
+.login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+.login-box { background: white; padding: 40px; border-radius: 20px; width: 350px; text-align: center; box-shadow: 0 10px 50px rgba(0,0,0,0.5); }
+.login-logo { width: 80px; height: 80px; background: #eff6ff; border-radius: 50%; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; color: var(--accent-color); font-size: 30px; }
+.login-box h2 { margin: 0 0 10px 0; color: #1e293b; }
+.login-input { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; outline: none; transition: 0.3s; margin-bottom: 20px; }
+.login-input:focus { border-color: var(--accent-color); }
+.login-btn { width: 100%; padding: 15px; background: var(--accent-color); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.login-btn:hover { background: #2563eb; }
+.login-footer { margin-top: 30px; color: #94a3b8; font-size: 12px; font-weight: bold; }
+
+/* Sidebar */
+.sidebar { width: var(--sidebar-width); background: var(--sidebar-bg); color: #94a3b8; display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; height: 100vh; border-right: 1px solid rgba(255,255,255,0.05); z-index: 50; overflow: hidden; }
+.sidebar-top { flex: 1; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; scrollbar-width: none; padding-bottom: 10px; }
+.sidebar-top::-webkit-scrollbar { display: none; }
+.sidebar-bottom { flex-shrink: 0; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
+.sidebar-header { font-size: 20px; font-weight: 800; color: white; text-align: center; margin-bottom: 5px; }
+.setting-container { display: flex; flex-direction: column; gap: 12px; } 
+.setting-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-left: 2px; }
+.setting-input, .setting-select { width: 100%; padding: 10px 12px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; font-size: 13px; outline: none; transition: 0.2s; }
+.setting-input:focus { border-color: var(--accent-color); }
+.qr-box { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 8px; display: flex; flex-direction: row; align-items: center; gap: 10px; }
+#qrcode { background: white; padding: 2px; border-radius: 4px; cursor: pointer; width: 42px; height: 42px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+#qrcode img { display: block; width: 100%; height: 100%; }
+#btnCopyLink { flex-grow: 1; height: 42px; margin: 0; border: 1px solid #475569; }
+.file-row { display: flex; gap: 8px; align-items: center; }
+.file-row label { flex-grow: 1; text-align: center; } 
+.file-row button { width: auto; min-width: 70px; } 
+.divider { height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0; }
+.btn-action { width: 100%; padding: 10px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; color: white; transition: 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-action:active { transform: translateY(0); }
+.btn-primary { background: var(--accent-color); }
+.btn-secondary { background: #475569; }
+.btn-danger { background: #7f1d1d; color: #fecaca; }
+.btn-print { background: #e2e8f0; color: #334155; }
+.btn-small { padding: 0 10px; font-size: 11px; height: 36px; white-space: nowrap; }
+.btn-dark { background: #1e293b; color: white; border: 1px solid #475569; }
+.action-buttons { display: flex; flex-direction: column; gap: 8px; }
+.dev-info { text-align: center; font-size: 10px; color: #475569; margin-top: 10px; }
+
+/* Main Stage */
+.main-stage { flex-grow: 1; display: flex; flex-direction: column; position: relative; height: 100vh; background: var(--bg-color); overflow: hidden; }
+.header { height: 60px; background: var(--header-bg); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 20; flex-shrink: 0; }
+.header-title { font-size: 18px; font-weight: 800; color: white; display: flex; align-items: center; gap: 10px; }
+.course-sub-name { font-weight: 400; opacity: 0.8; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 15px; }
+.header-controls { display: flex; gap: 15px; align-items: center; }
+.icon-btn-group { display: flex; gap: 8px; align-items: center; background: rgba(255,255,255,0.1); padding: 4px; border-radius: 24px; }
+.control-icon-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #94a3b8; cursor: pointer; transition: 0.2s; font-size: 14px; }
+.control-icon-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+.theme-toggle { display: flex; gap: 2px; }
+.theme-toggle i { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #64748b; transition: 0.2s; cursor: pointer; }
+.theme-toggle i.active { background: white; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.kac-logo { height: 24px; opacity: 0.9; margin-left: 10px; }
+
+.mode-tabs { display: flex; gap: 15px; padding: 15px 30px; border-bottom: 1px solid #e2e8f0; background: var(--card-bg); flex-shrink: 0; justify-content: center; }
+.mode-btn { padding: 8px 25px; border-radius: 50px; border: 2px solid #cbd5e1; font-weight: 700; color: #64748b; cursor: pointer; background: transparent; font-size: 14px; transition: 0.2s; display: flex; gap: 8px; align-items: center; }
+.mode-btn:hover { border-color: #94a3b8; color: #475569; }
+.mode-btn.active { border-color: var(--accent-color); background: var(--accent-color); color: white; box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3); }
+
+.content-area { flex-grow: 1; overflow: hidden; position: relative; padding: 30px; display: flex; justify-content: center; }
+.status-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); z-index: 999; display: none; justify-content: center; align-items: center; flex-direction: column; text-align: center; color: white; }
+.text-badge { background-color: var(--accent-color); color: white; padding: 2px 8px; border-radius: 6px; font-weight: 800; margin: 0 4px; display: inline-block; }
+
+#view-qa { width: 100%; height: 100%; display: flex; flex-direction: column; max-width: 1000px; overflow: hidden; position: relative; }
+.qa-filters { display: flex; gap: 10px; padding: 20px 5px; flex-shrink: 0; background: var(--bg-color); z-index: 10; position: relative; }
+.filter-chip { padding: 6px 16px; background: var(--card-bg); border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; box-shadow: 0 2px 4px rgba(0,0,0,0.03); color: #64748b; transition: 0.2s; }
+.filter-chip.active { background: #eff6ff; color: var(--accent-color); border-color: var(--accent-color); font-weight: 800; }
+.qa-list { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 5px 5px; padding-bottom: 50vh; }
+.qa-list::-webkit-scrollbar { width: 6px; }
+.qa-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+/* Q&A 카드 공통 */
+.q-card { background: var(--card-bg); padding: 20px 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-left: 5px solid #0f172a; cursor: pointer; transition: all 0.1s ease; position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-start; user-select: none; }
+.q-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(59, 130, 246, 0.15); background-color: #f8fafc; outline: 2px solid var(--accent-color); }
+.q-content { font-size: 17px; font-weight: 700; line-height: 1.5; color: var(--text-color); margin-right: 20px; }
+.q-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; min-width: 80px; }
+.q-like-badge { font-size: 14px; font-weight: 800; color: #3b82f6; background: #eff6ff; padding: 4px 10px; border-radius: 20px; }
+.q-time { font-size: 11px; color: #94a3b8; margin-top: auto; }
+
+
+
+/* [복구] 핀 고정 카드 (심플한 초기 버전) */
+.q-card.status-pin {
+    position: sticky;
+    top: -5px;           /* 스크롤 시 상단에 딱 붙음 */
+    z-index: 100;
+    
+    /* 왼쪽만 굵은 빨간색 (전체 테두리 아님) */
+    border-left: 5px solid #ef4444 !important; 
+    background-color: #fff1f2 !important; 
+    
+    /* 기본 그림자만 적용 (가림막 없음) */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* 핀 카드 마우스 올렸을 때 효과 (원래대로) */
+.q-card.status-pin:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.15);
+    background-color: #f8fafc !important;
+    outline: 2px solid var(--accent-color);
+}
+
+/* 핀 아이콘 색상 */
+.q-card.status-pin .q-content {
+    color: #ef4444; 
+}
+
+/* 다크모드 대응 */
+body.night-mode .q-card.status-pin {
+    background-color: #3f0c0c !important;
+    border-left-color: #ef4444 !important;
+    color: #e2e8f0 !important;
+}
+
+
+
+.q-card.status-later { border-left-color: #f59e0b; }
+.q-card.status-done { border-left-color: #cbd5e1; opacity: 0.6; filter: grayscale(1); }
+
+/* Quiz Styles */
+#view-quiz { width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; max-width: 1200px; }
+.quiz-card { width: 100%; height: 100%; background: var(--card-bg); border-radius: 24px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; position: relative; padding: 0; }
+.quiz-top-bar { height: 80px; background: #f1f5f9; border-bottom: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; flex-shrink: 0; color: #475569; font-weight: 700; }
+.quiz-top-info { display: flex; align-items: center; gap: 35px; font-size: 24px; }
+#quizNumberLabel { font-size: 28px; color: var(--accent-color); font-weight: 800; }
+.quiz-info-item { display: flex; align-items: center; gap: 6px; }
+.quiz-info-item i { color: #64748b; font-size: 26px; }
+.quiz-timer-box { font-family: 'Courier New', monospace; font-size: 34px; font-weight: 900; color: #1e293b; background: white; padding: 5px 20px; border-radius: 6px; border: 1px solid #cbd5e1; }
+.quiz-timer-box.urgent { color: #dc2626; border-color: #dc2626; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0.5; } }
+.quiz-exit-icon { cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: 0.2s; color: #94a3b8; font-size: 18px; }
+.quiz-exit-icon:hover { background: #cbd5e1; color: #333; }
+#quizContent { flex-grow: 1; padding: 30px 50px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; }
+.quiz-question-area { width: 100%; text-align: center; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; }
+.quiz-question { font-size: 38px; font-weight: 900; line-height: 1.3; color: var(--text-color); word-break: keep-all; }
+.quiz-options { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 12px; flex-grow: 1; justify-content: center; }
+.quiz-opt { 
+    width: 100%; flex: 1; min-height: 80px; 
+    display: flex; align-items: center; padding: 0 30px; 
+    border: 2px solid #e2e8f0; border-radius: 16px; 
+    font-size: 35px; font-weight: 800; color: #334155; 
+    background: white; transition: 0.2s; cursor: default; 
+}
+.quiz-opt .opt-num { 
+    width: 60px; height: 60px; background: #f1f5f9; 
+    border-radius: 12px; color: #64748b; display: flex; 
+    align-items: center; justify-content: center; 
+    font-size: 28px; font-weight: 900; margin-right: 25px; flex-shrink: 0; 
+}
+.quiz-opt.reveal-answer { border-color: #10b981; background: #ecfdf5; color: #065f46; transform: scale(1.02); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.15); font-weight: 800; }
+.quiz-opt.reveal-answer .opt-num { background: #10b981; color: white; }
+.quiz-opt.ox-mode { flex: 1; min-height: 120px; font-size: 50px; justify-content: center; }
+.quiz-opt.ox-mode .opt-num { display: none; }
+.chart-area { display: none; width: 100%; height: 100%; flex-grow: 1; align-items: flex-end; justify-content: center; gap: 8%; padding-bottom: 20px; border-bottom: 2px solid #cbd5e1; margin-bottom: 20px; }
+.bar-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 100px; height: 100%; position: relative; }
+.bar-value { font-size: 20px; font-weight: 800; margin-bottom: 5px; }
+.bar-fill { width: 100%; border-radius: 10px 10px 0 0; background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%); height: 0; transition: height 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.bar-label { margin-top: 10px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; color: #fff; background: #475569; }
+.bar-wrapper.correct .bar-fill { background: linear-gradient(180deg, #34d399 0%, #059669 100%); }
+.bar-wrapper.correct .bar-label { background: #059669; }
+.bar-wrapper.correct .bar-value { color: #059669; }
+.quiz-status-bar { padding: 20px; background: white; border-top: 1px solid #f1f5f9; display: flex; gap: 10px; justify-content: center; width: 100%; }
+.q-btn { padding: 8px 20px; border-radius: 8px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; color: white; display: flex; align-items: center; gap: 8px; min-width: 90px; justify-content: center; transition: 0.2s; }
+.q-btn:hover { filter: brightness(1.1); }
+.q-btn:active { transform: translateY(2px); }
+.btn-test { background: #f59e0b; width: 100%; }
+.btn-start { background: #3b82f6; } .btn-stop { background: #ef4444; } .btn-result { background: #10b981; } .btn-nav { background: #64748b; }
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+.modal-box { background: var(--card-bg); width: 600px; padding: 30px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); animation: popIn 0.3s; }
+.modal-header { margin-bottom: 20px; text-align: center; color: var(--text-color); }
+.modal-header h3 { margin: 0; font-size: 22px; font-weight: 800; }
+.modal-q-text-wrapper { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: center; }
+.modal-q-text { font-size: 20px; font-weight: 700; line-height: 1.5; color: var(--text-color); margin: 0; }
+.modal-actions { display: flex; justify-content: space-between; }
+.modal-left-btns, .modal-right-btns { display: flex; gap: 10px; }
+.m-btn { border: none; border-radius: 8px; padding: 12px 20px; font-weight: 700; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.m-btn-done { background: #10b981; color: white; } .m-btn-later { background: #f59e0b; color: white; }
+.m-btn-icon { width: 45px; height: 45px; border-radius: 50%; padding: 0; justify-content: center; font-size: 18px; color: white; }
+.m-btn-pin { background: #3b82f6; } .m-btn-del { background: #ef4444; }
+
+.overlay-panel { position: fixed; top: 0; right: 0; width: 320px; height: 100%; background: white; box-shadow: -5px 0 30px rgba(0,0,0,0.1); transform: translateX(100%); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; display: flex; flex-direction: column; }
+.overlay-panel.open { transform: translateX(0); }
+.overlay-toggle-tab { position: absolute; top: 50%; left: -32px; width: 32px; height: 70px; background: white; border-radius: 8px 0 0 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: -4px 0 10px rgba(0,0,0,0.05); color: #333; border: 1px solid #e2e8f0; border-right: none; }
+.panel-header { padding: 20px; border-bottom: 1px solid #e2e8f0; }
+.panel-body { padding: 20px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.editor-input { border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px; width: 100%; }
+.qr-big-box { background: white; padding: 20px; border-radius: 20px; }
+@keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+@media print { body * { visibility: hidden; } #printPreviewModal, #printPreviewModal * { visibility: visible; display: block !important; } }
+body.night-mode .q-card:hover { background-color: #334155 !important; color: #ffffff !important; outline-color: #3b82f6; }
+body.night-mode .q-card.status-pin { background-color: #3f0c0c !important; color: #e2e8f0 !important; border-left-color: #ef4444 !important; }
+body.night-mode .q-card.status-pin:hover { background-color: #450a0a !important; }
+body.night-mode .quiz-top-bar { background: #1e293b; border-color: #334155; color: #cbd5e1; }
+body.night-mode .quiz-timer-box { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+body.night-mode .modal-q-text-wrapper { background: #1e293b; border-color: #334155; }
+body.night-mode .q-card.status-pin .q-content { color: #fecaca; }
+
+/* 기본적으로는 숨김 (모바일 차단 로직 제거됨) */
+#mobileRestrictOverlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #0f172a; color: white;
+    z-index: 10000; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 20px;
+}
+
+/* 퀴즈 리포트 관련 */
+#quizSummaryOverlay h2 { font-size: 42px !important; margin-bottom: 40px !important; }
+.summary-card { display: flex; flex-direction: column; gap: 10px; padding: 20px !important; background: #f8fafc; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.summary-card span { font-size: 20px !important; color: #64748b; }
+.summary-card b { font-size: 36px !important; color: #1e293b; }
+#quizSummaryOverlay .btn-action { font-size: 20px !important; padding: 15px 40px !important; margin-top: 30px; }
+
+/* Floating QR Style */
+.floating-qr-box {
+    position: absolute; bottom: 30px; left: 30px;
+    background: white; padding: 15px; border-radius: 20px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+    z-index: 1500; display: none;
+    flex-direction: column; align-items: center; gap: 10px;
+    border: 3px solid var(--accent-color);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+#miniQRElement { background: white; padding: 5px; border-radius: 10px; cursor: pointer; transition: transform 0.2s ease; }
+#miniQRElement img { display: block; width: 140px; height: 140px; }
+#miniQRElement:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.qr-label { font-size: 15px; font-weight: 900; color: var(--accent-color); letter-spacing: -0.5px; margin-bottom: 5px; }
+.qr-close {
+    position: absolute; top: -12px; right: -12px;
+    background: #ef4444; color: white; width: 28px; height: 28px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+}
+body.night-mode .qr-label { color: #0f172a; }
+
+/* 퀴즈 질문 입력창 강제 확대 */
+#manualQ {
+    display: block !important; height: 300px !important; min-height: 300px !important;
+    flex-shrink: 0 !important; padding: 15px !important; font-size: 16px !important;
+    line-height: 1.5 !important; border: 2px solid #3b82f6 !important;
+    background-color: #f8fafc !important; margin-bottom: 20px !important; resize: vertical !important;
+}
+
+/* [추가] 번역 버튼 스타일 (최종) */
+.btn-translate {
+    background: transparent;
+    border: 1px solid #cbd5e1;
+    color: #64748b;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 11px;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: 0.2s;
+    vertical-align: middle;
+}
+.btn-translate:hover {
+    background: #eff6ff;
+    color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+
+
+/* 1. 막대 위 숫자(투표수) 크기 대폭 확대 */
+.bar-value {
+    font-size: 45px !important;
+    font-weight: 900 !important;
+    color: #1e293b;
+    margin-bottom: 0px !important;
+    z-index: 10;
+}
+
+/* 2. 왕관 아이콘: 숫자 위에 '탑'처럼 쌓기 */
+.crown-icon {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    
+    font-size: 70px !important;
+    margin-bottom: -15px !important; 
+    
+    animation: bounceCrown 1s infinite alternate;
+    filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+    align-self: center;
+}
+
+/* 3. 번호 동그라미 (1,2,3,4): 찌그러짐 방지 완벽 적용 */
+.bar-label {
+    /* [핵심] 너비와 높이를 강제로 고정하여 타원형이 되는 것 방지 */
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 60px !important;  /* ★ 절대 줄어들지 않게 함 */
+    min-height: 60px !important; /* ★ 절대 줄어들지 않게 함 */
+    
+    /* [핵심] 플렉스 박스 안에서 찌그러짐 차단 */
+    flex-shrink: 0 !important;
+    
+    font-size: 30px !important;
+    margin-top: 15px !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    
+    /* 글자 정중앙 정렬 */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* 4. 왕관 둥실둥실 움직임 */
+@keyframes bounceCrown {
+    from { transform: translateY(0); }
+    to { transform: translateY(-15px); }
+}
+
+/* 5. 작은 화면(노트북) 대응 - 여기도 찌그러짐 방지 적용 */
+@media (max-width: 1200px) {
+    .bar-value { font-size: 30px !important; }
+    .crown-icon { font-size: 50px !important; }
+    
+    .bar-label {
+        width: 45px !important;
+        height: 45px !important;
+        min-width: 45px !important;  /* ★ 축소 방지 */
+        min-height: 45px !important; /* ★ 축소 방지 */
+        font-size: 22px !important;
+        margin-top: 10px !important;
+    }
+}
+
+
+/* [추가] 교수님 관리 모달 스타일 */
+.prof-list-container {
+max-height: 300px;
+overflow-y: auto;
+border: 1px solid #cbd5e1;
+border-radius: 8px;
+margin-bottom: 15px;
+background: #f8fafc;
+}
+.prof-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px 15px;
+border-bottom: 1px solid #e2e8f0;
+font-size: 14px;
+font-weight: 600;
+color: #334155;
+}
+.prof-item:last-child { border-bottom: none; }
+.prof-item button {
+padding: 4px 10px;
+font-size: 11px;
+background: #ef4444;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+}
+.prof-item button:hover { background: #dc2626; }
+
+
+/* --- [리포트 디자인 수정 (완전 최종 수정본)] --- */
+
+/* 1. 프리뷰 모달 전체 박스 */
+.print-preview-box {
+    background-color: #525659;
+    width: 90%;
+    height: 90vh;
+    max-width: 1000px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 2. 상단 헤더 */
+.preview-header {
+    background: #333;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 10;
+    flex-shrink: 0;
+}
+.preview-header h3 { margin: 0; font-size: 18px; color: white; }
+
+/* 3. 문서 내용 스크롤 영역 (하단 여백 추가로 잘림 방지) */
+.preview-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 40px 20px 80px 20px; /* 하단 패딩을 넉넉히 줌 */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* 상단 정렬 */
+}
+
+/* 4. A4 용지 스타일 (화면용) */
+#official-document {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    padding: 40px 50px;
+    width: 210mm; 
+    min-height: 297mm;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+/* 5. 정보 테이블 (과정명 등) */
+.doc-info-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+.doc-info-table th { text-align: left; width: 100px; padding: 8px 0; color: #333; vertical-align: top; }
+.doc-info-table td { padding: 8px 0; font-weight: bold; color: #000; }
+
+/* 6. 질문 목록 테이블 스타일 */
+.doc-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    table-layout: fixed; /* 테이블 칸 너비 고정 */
+}
+.doc-list-table tr {
+    border-bottom: 1px solid #d1d5db;
+    page-break-inside: avoid; /* 행 중간 끊김 방지 */
+}
+.doc-list-table td {
+    padding: 12px 5px;
+    vertical-align: top; /* 내용이 길어지면 위쪽 정렬 */
+    font-size: 14px;
+    word-break: break-all; /* 긴 단어 줄바꿈 */
+    white-space: normal;
+}
+
+/* [중요] 테이블 칸 너비 강제 지정 (인쇄 시 깨짐 방지) */
+.doc-list-table td:first-child { 
+    text-align: center; 
+    width: 50px; /* 번호 칸 */
+    font-weight: bold; 
+    color: #64748b; 
+}
+.doc-list-table td:nth-child(2) {
+    text-align: left;
+    width: auto; /* 내용 칸 (나머지 공간 다 씀) */
+}
+.doc-list-table td:last-child { 
+    text-align: center; 
+    width: 70px; /* 공감 칸 */
+    font-weight: bold; 
+    color: #3b82f6; 
+}
+
+/* [신규] 최신 질문 강조 스타일 */
+@keyframes flashNew {
+    0% { background-color: #ecfdf5; transform: scale(1.02); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+    50% { background-color: #d1fae5; }
+    100% { background-color: var(--card-bg); transform: scale(1); }
+}
+
+.q-card.is-new {
+    /* 5분간 초록색 테두리로 강조 */
+    border-left-color: #10b981 !important;
+    /* 등장 시 깜빡이는 애니메이션 */
+    animation: flashNew 2s ease-out;
+}
+
+.new-badge-icon {
+    display: inline-block;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 6px;
+    vertical-align: middle;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+/* --- 퀴즈 결과 화면(차트) 전용 배경색 --- */
+.quiz-card.result-mode {
+    background-color: #ecfeff !important; /* 아주 연한 하늘색 */
+    border: 2px solid #06b6d4 !important; /* 테두리도 살짝 강조 */
+    transition: background-color 0.3s ease;
+}
+
+/* 다크모드일 때 결과 화면 색상 */
+body.night-mode .quiz-card.result-mode {
+    background-color: #164e63 !important; /* 짙은 청록색 */
+    border-color: #22d3ee !important;
+}
+
+/* 퀴즈 보관함 아이템 스타일 */
+.saved-quiz-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+.saved-quiz-item:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+.saved-quiz-item .q-title {
+    font-weight: 800;
+    font-size: 15px;
+    color: #1e293b;
+    margin-bottom: 3px;
+}
+.saved-quiz-item .q-info {
+    font-size: 11px;
+    color: #94a3b8;
+}
+.btn-del-mini {
+    background: transparent;
+    border: none;
+    color: #cbd5e1;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 16px;
+    transition: 0.2s;
+}
+.btn-del-mini:hover {
+    color: #ef4444;
+}
+
+/* --- 퀴즈 컨트롤러 UI 거대화 --- */
+.quiz-status-bar {
+    padding: 30px 20px; /* 상하 여백 확대 */
+    background: #f8fafc;
+    border-top: 2px solid #e2e8f0;
+}
+
+.q-btn.btn-giant {
+    height: 70px;      /* 높이 대폭 확대 */
+    min-width: 100px;
+    font-size: 22px;   /* 아이콘/글자 크기 확대 */
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.q-btn.btn-giant-main {
+    height: 70px;
+    flex-grow: 2;      /* 메인 버튼은 가로로 더 길게 */
+    font-size: 26px;   /* 메인 텍스트 크게 */
+    font-weight: 900;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+    transition: all 0.2s ease;
+}
+
+.q-btn.btn-giant-main:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.1);
+}
+
+.q-btn.btn-giant:active {
+    transform: translateY(2px);
+}
+
+/* 네비게이션 버튼 색상 (회색톤) */
+.btn-nav {
+    background: #475569 !important;
+}
+
+/* 종료 버튼 전용 */
+.btn-exit {
+    min-width: 150px;
+}
